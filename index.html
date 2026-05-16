@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UK Security Relationships Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px 50px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            text-align: center;
+        }
+        .loading h2 {
+            color: #0F172A;
+            margin-bottom: 15px;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003B73;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10000;
+            text-align: center;
+            max-width: 500px;
+        }
+        .error h2 {
+            color: #C1121F;
+            margin-bottom: 15px;
+        }
+        .error p {
+            color: #1F2937;
+            margin-bottom: 15px;
+        }
+        .error a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .error a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div class="loading" id="loadingScreen">
+        <h2>Loading UK Security Map...</h2>
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        // Initialize map
+        const map = L.map('map').setView([20, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Fetch and load GeoJSON
+        fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to load GeoJSON');
+                return response.json();
+            })
+            .then(data => {
+                // Color mapping
+                const relationshipColors = {
+                    "Tier 1 Ally": "#003B73",
+                    "Major Ally": "#0074D9",
+                    "Partner": "#2E8B57",
+                    "Strategic Competitor": "#F59E0B",
+                    "Adversary": "#C1121F",
+                    "Neutral": "#D1D5DB"
+                };
+
+                // Country name mapping
+                const countryMap = {
+                    "United States of America": { status: "Tier 1 Ally", context: "• NATO alliance\n• Five Eyes intelligence partnership\n• AUKUS security partnership (2021)\n• Naval Nuclear Propulsion Cooperation Agreement (2024)" },
+                    "Australia": { status: "Tier 1 Ally", context: "• Five Eyes intelligence alliance\n• AUKUS security partnership (2021)\n• UK–Australia AUKUS submarine treaty (2025)" },
+                    "France": { status: "Tier 1 Ally", context: "• NATO alliance\n• Lancaster House defence treaties\n• Combined Joint Expeditionary Force" },
+                    "Canada": { status: "Tier 1 Ally", context: "• NATO alliance\n• Five Eyes intelligence alliance" },
+                    "New Zealand": { status: "Tier 1 Ally", context: "• Five Eyes intelligence alliance\n• ANZUS security partnership" },
+                    "Germany": { status: "Major Ally", context: "• NATO alliance\n• NATO collective defence cooperation" },
+                    "Poland": { status: "Major Ally", context: "• NATO alliance\n• Eastern NATO deterrence cooperation with UK" },
+                    "Japan": { status: "Major Ally", context: "• Hiroshima Accord (2023)\n• Global Combat Air Programme – UK-Japan-Italy fighter development" },
+                    "India": { status: "Major Ally", context: "• UK-India Comprehensive Strategic Partnership\n• Indo-Pacific security cooperation" },
+                    "Ukraine": { status: "Major Ally", context: "• UK-Ukraine Security Cooperation Agreement (2024)\n• Military assistance & training" },
+                    "China": { status: "Strategic Competitor", context: "• Technology and security rivalry" },
+                    "Russia": { status: "Adversary", context: "• War in Ukraine\n• UK sanctions regime" },
+                    "Iran": { status: "Adversary", context: "• Nuclear programme concerns\n• Regional proxy conflicts" },
+                    "North Korea": { status: "Adversary", context: "• Nuclear weapons programme\n• UN sanctions" }
+                };
+
+                // Apply colors to features
+                L.geoJSON(data, {
+                    style: function(feature) {
+                        const countryName = feature.properties.name;
+                        const countryData = countryMap[countryName];
+                        const status = countryData ? countryData.status : "Neutral";
+                        const color = relationshipColors[status] || "#D1D5DB";
+                        const opacity = status === "Neutral" ? 0.9 : 0.7;
+
+                        return {
+                            fillColor: color,
+                            weight: 0,
+                            opacity: 1,
+                            color: 'none',
+                            dashArray: '3',
+                            fillOpacity: opacity
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        const countryName = feature.properties.name;
+                        const countryData = countryMap[countryName];
+                        const status = countryData ? countryData.status : "Neutral";
+                        const context = countryData ? countryData.context : "Standard diplomatic relations";
+
+                        const popupContent = `
+                            <div style="font-family: Arial; max-width: 300px;">
+                                <h3 style="margin: 0 0 10px 0; color: #0F172A;">${countryName}</h3>
+                                <p style="margin: 0 0 8px 0; font-weight: bold; color: #003B73;">${status}</p>
+                                <p style="margin: 0; font-size: 12px; white-space: pre-wrap; color: #1F2937;">${context}</p>
+                            </div>
+                        `;
+
+                        layer.bindPopup(popupContent);
+                        
+                        // Hover effects
+                        layer.on('mouseover', function() {
+                            this.setStyle({ fillOpacity: 1 });
+                        });
+                        layer.on('mouseout', function() {
+                            const status = countryData ? countryData.status : "Neutral";
+                            const opacity = status === "Neutral" ? 0.9 : 0.7;
+                            this.setStyle({ fillOpacity: opacity });
+                        });
+                    }
+                }).addTo(map);
+
+                // Remove loading screen
+                document.getElementById('loadingScreen').style.display = 'none';
+
+                // Add legend
+                const legend = L.control({ position: 'topleft' });
+                legend.onAdd = function() {
+                    const div = L.DomUtil.create('div', 'legend');
+                    div.style.cssText = `
+                        background: white;
+                        padding: 15px;
+                        border-radius: 10px;
+                        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+                        font-family: Arial;
+                        font-size: 13px;
+                        max-width: 320px;
+                    `;
+
+                    const header = document.createElement('h3');
+                    header.style.cssText = 'margin: 0 0 10px 0; color: #0F172A;';
+                    header.textContent = 'Global Security Relationships';
+                    div.appendChild(header);
+
+                    const subtitle = document.createElement('p');
+                    subtitle.style.cssText = 'margin: 0 0 10px 0; font-size: 11px; color: #666;';
+                    subtitle.textContent = 'UK Strategic Perspective';
+                    div.appendChild(subtitle);
+
+                    const hr1 = document.createElement('hr');
+                    hr1.style.cssText = 'margin: 10px 0; border: none; border-top: 1px solid #ddd;';
+                    div.appendChild(hr1);
+
+                    const categories = [
+                        { color: '#003B73', label: 'Tier 1 Ally' },
+                        { color: '#0074D9', label: 'Major Ally' },
+                        { color: '#2E8B57', label: 'Partner' },
+                        { color: '#F59E0B', label: 'Strategic Competitor' },
+                        { color: '#C1121F', label: 'Adversary' },
+                        { color: '#D1D5DB', label: 'Neutral' }
+                    ];
+
+                    categories.forEach(cat => {
+                        const item = document.createElement('p');
+                        item.style.cssText = 'margin: 5px 0;';
+                        item.innerHTML = `<span style="color: ${cat.color}; font-size: 20px;">●</span> ${cat.label}`;
+                        div.appendChild(item);
+                    });
+
+                    const hr2 = document.createElement('hr');
+                    hr2.style.cssText = 'margin: 10px 0; border: none; border-top: 1px solid #ddd;';
+                    div.appendChild(hr2);
+
+                    const footer = document.createElement('p');
+                    footer.style.cssText = 'margin: 10px 0 0 0; font-size: 11px; color: #666;';
+                    footer.innerHTML = 'By <strong>Abiona Uthera</strong><br><a href="https://github.com/abiona324/1" target="_blank" style="color: #007bff; text-decoration: none;">View on GitHub</a>';
+                    div.appendChild(footer);
+
+                    return div;
+                };
+                legend.addTo(map);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loadingScreen').innerHTML = `
+                    <div class="error">
+                        <h2>⚠️ Error Loading Map</h2>
+                        <p>${error.message}</p>
+                        <p>Try <a href="javascript:location.reload()">refreshing the page</a></p>
+                    </div>
+                `;
+                document.getElementById('loadingScreen').classList.add('error');
+            });
+    </script>
+</body>
+</html>
