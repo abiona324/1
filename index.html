@@ -95,6 +95,219 @@
             maxZoom: 19
         }).addTo(map);
 
+        // Color mapping
+        const relationshipColors = {
+            "Tier 1 Ally": "#003B73",
+            "Major Ally": "#0074D9",
+            "Partner": "#2E8B57",
+            "Strategic Competitor": "#F59E0B",
+            "Adversary": "#C1121F",
+            "Neutral": "#D1D5DB"
+        };
+
+        // Complete country data from your Python script
+        const countryMap = {
+            "United States of America": { status: "Tier 1 Ally", context: "• NATO alliance\n• Five Eyes intelligence partnership\n• AUKUS security partnership (2021)\n• Naval Nuclear Propulsion Cooperation Agreement (2024)" },
+            "Australia": { status: "Tier 1 Ally", context: "• Five Eyes intelligence alliance\n• AUKUS security partnership (2021)\n• UK–Australia AUKUS submarine treaty (2025)" },
+            "France": { status: "Tier 1 Ally", context: "• NATO alliance\n• Lancaster House defence treaties\n• Combined Joint Expeditionary Force" },
+            "Canada": { status: "Tier 1 Ally", context: "• NATO alliance\n• Five Eyes intelligence alliance" },
+            "New Zealand": { status: "Tier 1 Ally", context: "• Five Eyes intelligence alliance\n• ANZUS security partnership" },
+            "Germany": { status: "Major Ally", context: "• NATO alliance\n• NATO collective defence cooperation" },
+            "Poland": { status: "Major Ally", context: "• NATO alliance\n• Eastern NATO deterrence cooperation with UK" },
+            "Japan": { status: "Major Ally", context: "• Hiroshima Accord (2023)\n• Global Combat Air Programme – UK-Japan-Italy fighter development" },
+            "India": { status: "Major Ally", context: "• UK-India Comprehensive Strategic Partnership\n• Indo-Pacific security cooperation" },
+            "Ukraine": { status: "Major Ally", context: "• UK-Ukraine Security Cooperation Agreement (2024)\n• Military assistance & training" },
+            "Albania": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Bahrain": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Belgium": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Brunei": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Bulgaria": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Croatia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Cyprus": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Czechia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Denmark": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Estonia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Finland": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Greece": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Hungary": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Iceland": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Israel": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Italy": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Jordan": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Kenya": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Kuwait": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Latvia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Lithuania": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Malaysia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Montenegro": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Netherlands": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Nigeria": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "North Macedonia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Norway": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Oman": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Pakistan": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Portugal": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Qatar": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Romania": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Saudi Arabia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Singapore": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Slovakia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Slovenia": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "South Korea": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Spain": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Sweden": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Turkey": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "United Arab Emirates": { status: "Major Ally", context: "Standard diplomatic relations" },
+            "Luxembourg": { status: "Major Ally", context: "Standard diplomatic relations" },
+            // Partner countries
+            "Algeria": { status: "Partner", context: "Standard diplomatic relations" },
+            "Angola": { status: "Partner", context: "Standard diplomatic relations" },
+            "Antigua and Barbuda": { status: "Partner", context: "Standard diplomatic relations" },
+            "Argentina": { status: "Partner", context: "Standard diplomatic relations" },
+            "Armenia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Austria": { status: "Partner", context: "Standard diplomatic relations" },
+            "Azerbaijan": { status: "Partner", context: "Standard diplomatic relations" },
+            "Bahamas": { status: "Partner", context: "Standard diplomatic relations" },
+            "Bangladesh": { status: "Partner", context: "Standard diplomatic relations" },
+            "Barbados": { status: "Partner", context: "Standard diplomatic relations" },
+            "Belize": { status: "Partner", context: "Standard diplomatic relations" },
+            "Benin": { status: "Partner", context: "Standard diplomatic relations" },
+            "Bosnia and Herzegovina": { status: "Partner", context: "Standard diplomatic relations" },
+            "Botswana": { status: "Partner", context: "Standard diplomatic relations" },
+            "Brazil": { status: "Partner", context: "Standard diplomatic relations" },
+            "Cabo Verde": { status: "Partner", context: "Standard diplomatic relations" },
+            "Cameroon": { status: "Partner", context: "Standard diplomatic relations" },
+            "Chad": { status: "Partner", context: "Standard diplomatic relations" },
+            "Chile": { status: "Partner", context: "Standard diplomatic relations" },
+            "Colombia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Republic of the Congo": { status: "Partner", context: "Standard diplomatic relations" },
+            "Democratic Republic of the Congo": { status: "Partner", context: "Standard diplomatic relations" },
+            "Costa Rica": { status: "Partner", context: "Standard diplomatic relations" },
+            "Côte d'Ivoire": { status: "Partner", context: "Standard diplomatic relations" },
+            "Djibouti": { status: "Partner", context: "Standard diplomatic relations" },
+            "Dominica": { status: "Partner", context: "Standard diplomatic relations" },
+            "Dominican Republic": { status: "Partner", context: "Standard diplomatic relations" },
+            "Ecuador": { status: "Partner", context: "Standard diplomatic relations" },
+            "Egypt": { status: "Partner", context: "Standard diplomatic relations" },
+            "El Salvador": { status: "Partner", context: "Standard diplomatic relations" },
+            "Ethiopia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Fiji": { status: "Partner", context: "Standard diplomatic relations" },
+            "Gabon": { status: "Partner", context: "Standard diplomatic relations" },
+            "Gambia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Georgia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Ghana": { status: "Partner", context: "Standard diplomatic relations" },
+            "Grenada": { status: "Partner", context: "Standard diplomatic relations" },
+            "Guatemala": { status: "Partner", context: "Standard diplomatic relations" },
+            "Guyana": { status: "Partner", context: "Standard diplomatic relations" },
+            "Honduras": { status: "Partner", context: "Standard diplomatic relations" },
+            "Indonesia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Iraq": { status: "Partner", context: "Standard diplomatic relations" },
+            "Ireland": { status: "Partner", context: "Standard diplomatic relations" },
+            "Jamaica": { status: "Partner", context: "Standard diplomatic relations" },
+            "Kazakhstan": { status: "Partner", context: "Standard diplomatic relations" },
+            "Kiribati": { status: "Partner", context: "Standard diplomatic relations" },
+            "Kosovo": { status: "Partner", context: "Standard diplomatic relations" },
+            "Lebanon": { status: "Partner", context: "Standard diplomatic relations" },
+            "Lesotho": { status: "Partner", context: "Standard diplomatic relations" },
+            "Liberia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Madagascar": { status: "Partner", context: "Standard diplomatic relations" },
+            "Malawi": { status: "Partner", context: "Standard diplomatic relations" },
+            "Maldives": { status: "Partner", context: "Standard diplomatic relations" },
+            "Malta": { status: "Partner", context: "Standard diplomatic relations" },
+            "Marshall Islands": { status: "Partner", context: "Standard diplomatic relations" },
+            "Mauritania": { status: "Partner", context: "Standard diplomatic relations" },
+            "Mauritius": { status: "Partner", context: "Standard diplomatic relations" },
+            "Mexico": { status: "Partner", context: "Standard diplomatic relations" },
+            "Micronesia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Moldova": { status: "Partner", context: "Standard diplomatic relations" },
+            "Monaco": { status: "Partner", context: "Standard diplomatic relations" },
+            "Mongolia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Morocco": { status: "Partner", context: "Standard diplomatic relations" },
+            "Mozambique": { status: "Partner", context: "Standard diplomatic relations" },
+            "Namibia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Nauru": { status: "Partner", context: "Standard diplomatic relations" },
+            "Nepal": { status: "Partner", context: "Standard diplomatic relations" },
+            "Panama": { status: "Partner", context: "Standard diplomatic relations" },
+            "Papua New Guinea": { status: "Partner", context: "Standard diplomatic relations" },
+            "Peru": { status: "Partner", context: "Standard diplomatic relations" },
+            "Philippines": { status: "Partner", context: "Standard diplomatic relations" },
+            "Rwanda": { status: "Partner", context: "Standard diplomatic relations" },
+            "Saint Kitts and Nevis": { status: "Partner", context: "Standard diplomatic relations" },
+            "Saint Lucia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Saint Vincent and the Grenadines": { status: "Partner", context: "Standard diplomatic relations" },
+            "Samoa": { status: "Partner", context: "Standard diplomatic relations" },
+            "Senegal": { status: "Partner", context: "Standard diplomatic relations" },
+            "Serbia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Seychelles": { status: "Partner", context: "Standard diplomatic relations" },
+            "Sierra Leone": { status: "Partner", context: "Standard diplomatic relations" },
+            "Solomon Islands": { status: "Partner", context: "Standard diplomatic relations" },
+            "Somalia": { status: "Partner", context: "Standard diplomatic relations" },
+            "South Africa": { status: "Partner", context: "Standard diplomatic relations" },
+            "Sri Lanka": { status: "Partner", context: "Standard diplomatic relations" },
+            "Switzerland": { status: "Partner", context: "Standard diplomatic relations" },
+            "Taiwan": { status: "Partner", context: "Standard diplomatic relations" },
+            "Tanzania": { status: "Partner", context: "Standard diplomatic relations" },
+            "Thailand": { status: "Partner", context: "Standard diplomatic relations" },
+            "Togo": { status: "Partner", context: "Standard diplomatic relations" },
+            "Tonga": { status: "Partner", context: "Standard diplomatic relations" },
+            "Trinidad and Tobago": { status: "Partner", context: "Standard diplomatic relations" },
+            "Tunisia": { status: "Partner", context: "Standard diplomatic relations" },
+            "Tuvalu": { status: "Partner", context: "Standard diplomatic relations" },
+            "Uganda": { status: "Partner", context: "Standard diplomatic relations" },
+            "Uruguay": { status: "Partner", context: "Standard diplomatic relations" },
+            "Uzbekistan": { status: "Partner", context: "Standard diplomatic relations" },
+            "Vanuatu": { status: "Partner", context: "Standard diplomatic relations" },
+            "Vietnam": { status: "Partner", context: "Standard diplomatic relations" },
+            "Zambia": { status: "Partner", context: "Standard diplomatic relations" },
+            // Strategic Competitors
+            "China": { status: "Strategic Competitor", context: "• Technology and security rivalry" },
+            "Venezuela": { status: "Strategic Competitor", context: "Standard diplomatic relations" },
+            // Adversaries
+            "Belarus": { status: "Adversary", context: "Standard diplomatic relations" },
+            "Iran": { status: "Adversary", context: "• Nuclear programme concerns\n• Regional proxy conflicts" },
+            "Myanmar": { status: "Adversary", context: "Standard diplomatic relations" },
+            "North Korea": { status: "Adversary", context: "• Nuclear weapons programme\n• UN sanctions" },
+            "Russia": { status: "Adversary", context: "• War in Ukraine\n• UK sanctions regime" },
+            "Syria": { status: "Adversary", context: "Standard diplomatic relations" },
+            // Neutral countries
+            "Afghanistan": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Andorra": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Bhutan": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Bolivia": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Burkina Faso": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Burundi": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Cambodia": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Central African Republic": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Comoros": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Cuba": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Equatorial Guinea": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Eritrea": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Eswatini": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Guinea": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Guinea-Bissau": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Haiti": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Kyrgyzstan": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Laos": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Libya": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Liechtenstein": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Mali": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Niger": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Nicaragua": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Palestine": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Paraguay": { status: "Neutral", context: "Standard diplomatic relations" },
+            "San Marino": { status: "Neutral", context: "Standard diplomatic relations" },
+            "São Tomé and Príncipe": { status: "Neutral", context: "Standard diplomatic relations" },
+            "South Sudan": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Sudan": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Suriname": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Tajikistan": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Timor-Leste": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Turkmenistan": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Vatican City": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Yemen": { status: "Neutral", context: "Standard diplomatic relations" },
+            "Zimbabwe": { status: "Neutral", context: "Standard diplomatic relations" }
+        };
+
         // Fetch and load GeoJSON
         fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
             .then(response => {
@@ -102,34 +315,6 @@
                 return response.json();
             })
             .then(data => {
-                // Color mapping
-                const relationshipColors = {
-                    "Tier 1 Ally": "#003B73",
-                    "Major Ally": "#0074D9",
-                    "Partner": "#2E8B57",
-                    "Strategic Competitor": "#F59E0B",
-                    "Adversary": "#C1121F",
-                    "Neutral": "#D1D5DB"
-                };
-
-                // Country name mapping
-                const countryMap = {
-                    "United States of America": { status: "Tier 1 Ally", context: "• NATO alliance\n• Five Eyes intelligence partnership\n• AUKUS security partnership (2021)\n• Naval Nuclear Propulsion Cooperation Agreement (2024)" },
-                    "Australia": { status: "Tier 1 Ally", context: "• Five Eyes intelligence alliance\n• AUKUS security partnership (2021)\n• UK–Australia AUKUS submarine treaty (2025)" },
-                    "France": { status: "Tier 1 Ally", context: "• NATO alliance\n• Lancaster House defence treaties\n• Combined Joint Expeditionary Force" },
-                    "Canada": { status: "Tier 1 Ally", context: "• NATO alliance\n• Five Eyes intelligence alliance" },
-                    "New Zealand": { status: "Tier 1 Ally", context: "• Five Eyes intelligence alliance\n• ANZUS security partnership" },
-                    "Germany": { status: "Major Ally", context: "• NATO alliance\n• NATO collective defence cooperation" },
-                    "Poland": { status: "Major Ally", context: "• NATO alliance\n• Eastern NATO deterrence cooperation with UK" },
-                    "Japan": { status: "Major Ally", context: "• Hiroshima Accord (2023)\n• Global Combat Air Programme – UK-Japan-Italy fighter development" },
-                    "India": { status: "Major Ally", context: "• UK-India Comprehensive Strategic Partnership\n• Indo-Pacific security cooperation" },
-                    "Ukraine": { status: "Major Ally", context: "• UK-Ukraine Security Cooperation Agreement (2024)\n• Military assistance & training" },
-                    "China": { status: "Strategic Competitor", context: "• Technology and security rivalry" },
-                    "Russia": { status: "Adversary", context: "• War in Ukraine\n• UK sanctions regime" },
-                    "Iran": { status: "Adversary", context: "• Nuclear programme concerns\n• Regional proxy conflicts" },
-                    "North Korea": { status: "Adversary", context: "• Nuclear weapons programme\n• UN sanctions" }
-                };
-
                 // Apply colors to features
                 L.geoJSON(data, {
                     style: function(feature) {
@@ -184,28 +369,45 @@
                 legend.onAdd = function() {
                     const div = L.DomUtil.create('div', 'legend');
                     div.style.cssText = `
-                        background: white;
+                        background: #F8FAFC;
                         padding: 15px;
                         border-radius: 10px;
                         box-shadow: 0 0 15px rgba(0,0,0,0.2);
                         font-family: Arial;
                         font-size: 13px;
                         max-width: 320px;
+                        border: 2px solid #CBD5E1;
                     `;
 
-                    const header = document.createElement('h3');
-                    header.style.cssText = 'margin: 0 0 10px 0; color: #0F172A;';
-                    header.textContent = 'Global Security Relationships';
+                    const header = document.createElement('div');
+                    header.style.cssText = 'background-color: #0F172A; padding: 10px; margin: -15px -15px 15px -15px; border-top-left-radius: 10px; border-top-right-radius: 10px;';
+                    
+                    const h3 = document.createElement('h3');
+                    h3.style.cssText = 'color: #F8FAFC; margin: 0; padding: 0;';
+                    h3.textContent = 'Global Security Relationships';
+                    
+                    const subtitle = document.createElement('b');
+                    subtitle.style.cssText = 'color: #CBD5E1; font-size: 12px;';
+                    subtitle.textContent = 'UK Strategic Perspective';
+                    
+                    header.appendChild(h3);
+                    header.appendChild(document.createElement('br'));
+                    header.appendChild(subtitle);
                     div.appendChild(header);
 
-                    const subtitle = document.createElement('p');
-                    subtitle.style.cssText = 'margin: 0 0 10px 0; font-size: 11px; color: #666;';
-                    subtitle.textContent = 'UK Strategic Perspective';
-                    div.appendChild(subtitle);
+                    const description = document.createElement('p');
+                    description.style.cssText = 'font-size: 12px; color: #1F2937; margin: 15px 0;';
+                    description.textContent = 'Hover over a country to see its relationship with the UK, including verified treaties, agreements, or policy anchors.';
+                    div.appendChild(description);
 
                     const hr1 = document.createElement('hr');
-                    hr1.style.cssText = 'margin: 10px 0; border: none; border-top: 1px solid #ddd;';
+                    hr1.style.cssText = 'margin: 10px 0; border: none; border-top: 1px solid #CBD5E1;';
                     div.appendChild(hr1);
+
+                    const categoriesTitle = document.createElement('b');
+                    categoriesTitle.textContent = 'Relationship Categories';
+                    div.appendChild(categoriesTitle);
+                    div.appendChild(document.createElement('br'));
 
                     const categories = [
                         { color: '#003B73', label: 'Tier 1 Ally' },
@@ -218,18 +420,18 @@
 
                     categories.forEach(cat => {
                         const item = document.createElement('p');
-                        item.style.cssText = 'margin: 5px 0;';
+                        item.style.cssText = 'margin: 5px 0; color: #1F2937;';
                         item.innerHTML = `<span style="color: ${cat.color}; font-size: 20px;">●</span> ${cat.label}`;
                         div.appendChild(item);
                     });
 
                     const hr2 = document.createElement('hr');
-                    hr2.style.cssText = 'margin: 10px 0; border: none; border-top: 1px solid #ddd;';
+                    hr2.style.cssText = 'margin: 10px 0; border: none; border-top: 1px solid #CBD5E1;';
                     div.appendChild(hr2);
 
                     const footer = document.createElement('p');
-                    footer.style.cssText = 'margin: 10px 0 0 0; font-size: 11px; color: #666;';
-                    footer.innerHTML = 'By <strong>Abiona Uthera</strong><br><a href="https://github.com/abiona324/1" target="_blank" style="color: #007bff; text-decoration: none;">View on GitHub</a>';
+                    footer.style.cssText = 'margin: 10px 0 0 0; font-size: 11px; color: #1F2937;';
+                    footer.innerHTML = 'Security Relationship from UK Perspective<br><b>By Abiona Uthera</b><br><a href="https://github.com/abiona324/1" target="_blank" style="color: #007bff; text-decoration: none;">View on GitHub</a>';
                     div.appendChild(footer);
 
                     return div;
